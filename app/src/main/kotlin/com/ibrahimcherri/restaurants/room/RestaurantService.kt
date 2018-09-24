@@ -10,7 +10,7 @@ class RestaurantService @Inject constructor(var appDatabase: AppDatabase) : Rest
 
     override fun getRestaurants(): Single<List<Restaurant>> {
         return appDatabase.restaurantDao().getAll().flatMap { restaurants ->
-            Single.just(restaurants.map { Restaurant(it.name, it.address, it.image) })
+            Single.just(restaurants.map(::mapRestaurantEntityToDomain))
         }
     }
 
