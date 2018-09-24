@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Restaurants</string>
+    <string name="restaurants_activity_label">Abbotsford</string>
+    <string name="restarants_load_error">Error loading restaurants list, please try again later.</string>
 </resources>

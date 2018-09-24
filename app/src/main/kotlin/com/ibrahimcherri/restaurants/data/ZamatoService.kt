@@ -18,7 +18,7 @@ class ZamatoService @Inject constructor(retrofit: Retrofit) : ZamatoRepository {
     override fun getLocationDetails(locationId: String, locationType: String): Single<List<Restaurant>> =
             locationApi.getLocationDetailsApi(locationId, locationType).map { response ->
                 response.bestRestaurants.map {
-                    Restaurant(it.restaurant.name, it.restaurant.location.address, URI(it.restaurant.imageUrl))
+                    Restaurant(it.restaurant.name, it.restaurant.location.address, it.restaurant.imageUrl)
                 }
             }
 }
