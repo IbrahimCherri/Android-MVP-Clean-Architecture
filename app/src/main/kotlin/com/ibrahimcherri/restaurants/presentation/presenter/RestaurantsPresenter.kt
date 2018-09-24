@@ -1,13 +1,18 @@
 package com.ibrahimcherri.restaurants.presentation.presenter
 
 import com.ibrahimcherri.restaurants.domain.GetLocationTopRestaurantsUseCase
+import com.ibrahimcherri.restaurants.domain.GetRestaurantsFromDatabaseUseCase
+import com.ibrahimcherri.restaurants.domain.UpdateRestaurantsInDatabaseUseCase
 import com.ibrahimcherri.restaurants.domain.model.Restaurant
+import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
-open class RestaurantsPresenter @Inject constructor(private val getLocationTopRestaurantsUseCase: GetLocationTopRestaurantsUseCase) {
+open class RestaurantsPresenter @Inject constructor(private val getLocationTopRestaurantsUseCase: GetLocationTopRestaurantsUseCase,
+                                                    private val getRestaurantsFromDatabaseUseCase: GetRestaurantsFromDatabaseUseCase,
+                                                    private val updateRestaurantsInDatabaseUseCase: UpdateRestaurantsInDatabaseUseCase) {
 
     private companion object {
         const val LOCATION_ID = "98284"
@@ -26,11 +31,25 @@ open class RestaurantsPresenter @Inject constructor(private val getLocationTopRe
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        {
-                            display.displayRestaurants(it)
+                        { restaurants ->
+                            display.displayRestaurants(restaurants)
+
+                            Completable.fromAction { updateRestaurantsInDatabaseUseCase.updateRestaurantsInDatabase(restaurants) }
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe {
+                                        // No message output for the user at this stage
+                                    }
                         },
-                        {
-                            display.displayError()
+                        { _ ->
+                            getRestaurantsFromDatabaseUseCase.geRestaurantsFromDatabase()
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe({
+                                        display.displayRestaurants(it)
+                                    }, {
+                                        display.displayError()
+                                    })
                         })
     }
 

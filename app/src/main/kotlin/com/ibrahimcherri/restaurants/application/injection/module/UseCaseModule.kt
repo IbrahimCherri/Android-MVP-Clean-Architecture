@@ -1,7 +1,6 @@
 package com.ibrahimcherri.restaurants.application.injection.module
 
-import com.ibrahimcherri.restaurants.domain.GetLocationTopRestaurantsUseCase
-import com.ibrahimcherri.restaurants.domain.ZamatoRepository
+import com.ibrahimcherri.restaurants.domain.*
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -11,6 +10,16 @@ class UseCaseModule {
 
     @Provides
     @Singleton
-    fun provideHttpCache(zamatoRepository: ZamatoRepository): GetLocationTopRestaurantsUseCase =
+    fun provideLocationTopRestaurants(zamatoRepository: ZamatoRepository): GetLocationTopRestaurantsUseCase =
             GetLocationTopRestaurantsUseCase(zamatoRepository)
+
+    @Provides
+    @Singleton
+    fun provideGetRestaurantsFromDatabase(restaurantRepository: RestaurantRepository): GetRestaurantsFromDatabaseUseCase =
+            GetRestaurantsFromDatabaseUseCase(restaurantRepository)
+
+    @Provides
+    @Singleton
+    fun provideUpdateRestaurantsInDatabase(restaurantRepository: RestaurantRepository): UpdateRestaurantsInDatabaseUseCase =
+            UpdateRestaurantsInDatabaseUseCase(restaurantRepository)
 }

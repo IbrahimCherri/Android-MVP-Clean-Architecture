@@ -1,6 +1,8 @@
 package com.ibrahimcherri.restaurants.presentation
 
 import com.ibrahimcherri.restaurants.domain.GetLocationTopRestaurantsUseCase
+import com.ibrahimcherri.restaurants.domain.GetRestaurantsFromDatabaseUseCase
+import com.ibrahimcherri.restaurants.domain.UpdateRestaurantsInDatabaseUseCase
 import com.ibrahimcherri.restaurants.presentation.presenter.RestaurantsPresenter
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
@@ -21,6 +23,8 @@ import java.util.concurrent.TimeUnit
 class RestaurantsPresenterTest {
 
     private lateinit var getLocationTopRestaurantsUseCase: GetLocationTopRestaurantsUseCase
+    private lateinit var getRestaurantsFromDatabaseUseCase: GetRestaurantsFromDatabaseUseCase
+    private lateinit var updateRestaurantsInDatabaseUseCase: UpdateRestaurantsInDatabaseUseCase
     private lateinit var display: RestaurantsPresenter.Display
     private lateinit var presenter: RestaurantsPresenter
 
@@ -44,7 +48,9 @@ class RestaurantsPresenterTest {
         RxAndroidPlugins.setInitMainThreadSchedulerHandler { immediate }
 
         getLocationTopRestaurantsUseCase = mock()
-        presenter = RestaurantsPresenter(getLocationTopRestaurantsUseCase)
+        getRestaurantsFromDatabaseUseCase = mock()
+        updateRestaurantsInDatabaseUseCase = mock()
+        presenter = RestaurantsPresenter(getLocationTopRestaurantsUseCase, getRestaurantsFromDatabaseUseCase, updateRestaurantsInDatabaseUseCase)
         display = mock()
         presenter.inject(display)
     }
@@ -58,11 +64,28 @@ class RestaurantsPresenterTest {
         verify(getLocationTopRestaurantsUseCase).getLocationTopRestaurants("98284", "subzone")
 
         verify(display).displayRestaurants(any())
+        verify(updateRestaurantsInDatabaseUseCase).updateRestaurantsInDatabase(listOf())
     }
 
     @Test
-    fun getRestaurantsFailure() {
+    fun getRestaurantsFailureThenGetFromDBSuccess() {
         whenever(getLocationTopRestaurantsUseCase.getLocationTopRestaurants("98284", "subzone"))
+                .thenReturn(Single.error(java.lang.IllegalArgumentException()))
+
+        whenever(getRestaurantsFromDatabaseUseCase.geRestaurantsFromDatabase())
+                .thenReturn(Single.just(listOf()))
+
+        presenter.onResume()
+
+        verify(display).displayRestaurants(any())
+    }
+
+    @Test
+    fun getRestaurantsFailureThenGetFromDBFailure() {
+        whenever(getLocationTopRestaurantsUseCase.getLocationTopRestaurants("98284", "subzone"))
+                .thenReturn(Single.error(java.lang.IllegalArgumentException()))
+
+        whenever(getRestaurantsFromDatabaseUseCase.geRestaurantsFromDatabase())
                 .thenReturn(Single.error(java.lang.IllegalArgumentException()))
 
         presenter.onResume()

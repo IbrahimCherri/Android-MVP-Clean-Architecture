@@ -11,7 +11,8 @@ import javax.inject.Singleton
     PresenterModule::class,
     UseCaseModule::class,
     ServiceModule::class,
-    NetworkModule::class])
+    NetworkModule::class,
+    DatabaseModule::class])
 interface ApplicationComponent {
     fun inject(restaurantsActivity: RestaurantsActivity)
 }

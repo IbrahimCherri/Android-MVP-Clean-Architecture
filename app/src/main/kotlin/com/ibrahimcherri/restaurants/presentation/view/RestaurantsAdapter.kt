@@ -25,8 +25,8 @@ class RestaurantsAdapter(private val restaurants: List<Restaurant>) :
             holder.view.restaurantNameText.text = name
             holder.view.restaurantAddressText.text = address
 
-            Picasso.with(holder.view.context)
-                    .load(image)
+            val picasso = Picasso.with(holder.view.context)
+            picasso.load(image)
                     .fit()
                     .into(holder.view.restaurantImage)
         }

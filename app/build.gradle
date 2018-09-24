@@ -70,10 +70,16 @@ dependencies {
     // Picasso
     implementation 'com.squareup.picasso:picasso:2.5.2'
 
+    // Room
+    implementation "android.arch.persistence.room:runtime:$room_version"
+    kapt "android.arch.persistence.room:compiler:$room_version"
+    implementation "android.arch.persistence.room:rxjava2:$room_version"
+
     // Test
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit:1.2.50'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     testImplementation 'com.nhaarman:mockito-kotlin-kt1.1:1.6.0'
+    androidTestImplementation "android.arch.core:core-testing:$room_version"
 }
