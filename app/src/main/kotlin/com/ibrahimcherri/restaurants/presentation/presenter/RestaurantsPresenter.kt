@@ -21,6 +21,7 @@ open class RestaurantsPresenter @Inject constructor(private val getLocationTopRe
 
     private lateinit var display: Display
     private lateinit var apiSubscription: Disposable
+    private lateinit var databaseSubscription: Disposable
 
     fun inject(display: Display) {
         this.display = display
@@ -34,7 +35,7 @@ open class RestaurantsPresenter @Inject constructor(private val getLocationTopRe
                         { restaurants ->
                             display.displayRestaurants(restaurants)
 
-                            Completable.fromAction { updateRestaurantsInDatabaseUseCase.updateRestaurantsInDatabase(restaurants) }
+                            databaseSubscription = Completable.fromAction { updateRestaurantsInDatabaseUseCase.updateRestaurantsInDatabase(restaurants) }
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe {
@@ -42,7 +43,7 @@ open class RestaurantsPresenter @Inject constructor(private val getLocationTopRe
                                     }
                         },
                         { _ ->
-                            getRestaurantsFromDatabaseUseCase.geRestaurantsFromDatabase()
+                            databaseSubscription = getRestaurantsFromDatabaseUseCase.geRestaurantsFromDatabase()
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe({
@@ -55,6 +56,7 @@ open class RestaurantsPresenter @Inject constructor(private val getLocationTopRe
 
     fun onPause() {
         apiSubscription.dispose()
+        databaseSubscription.dispose()
     }
 
     interface Display {
