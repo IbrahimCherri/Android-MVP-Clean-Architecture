@@ -1,4 +1,4 @@
-# Restaurants
+# Android MVP Clean Architecture
 
 This sample Android application demonstrates the usage of MVP pattern and Clean Architecture.
 
