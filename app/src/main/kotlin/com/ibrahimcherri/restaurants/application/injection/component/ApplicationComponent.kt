@@ -8,8 +8,6 @@ import javax.inject.Singleton
 @Singleton
 @Component(modules = [
     ApplicationModule::class,
-    PresenterModule::class,
-    UseCaseModule::class,
     ServiceModule::class,
     NetworkModule::class,
     DatabaseModule::class])

@@ -5,11 +5,11 @@ import com.ibrahimcherri.restaurants.data.model.LocationDetailsResponse
 import com.ibrahimcherri.restaurants.domain.ZamatoRepository
 import com.ibrahimcherri.restaurants.domain.model.Restaurant
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
 import retrofit2.Retrofit
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Query
-import java.net.URI
 import javax.inject.Inject
 
 class ZamatoService @Inject constructor(retrofit: Retrofit) : ZamatoRepository {
@@ -17,6 +17,7 @@ class ZamatoService @Inject constructor(retrofit: Retrofit) : ZamatoRepository {
 
     override fun getLocationDetails(locationId: String, locationType: String): Single<List<Restaurant>> =
             locationApi.getLocationDetailsApi(locationId, locationType)
+                    .observeOn(AndroidSchedulers.mainThread())
                     .map(::mapLocationDetailsToDomainRestaurants)
 
     interface LocationApi {

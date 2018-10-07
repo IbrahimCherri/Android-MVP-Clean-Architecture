@@ -8,88 +8,45 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
-import io.reactivex.Scheduler
 import io.reactivex.Single
-import io.reactivex.android.plugins.RxAndroidPlugins
-import io.reactivex.annotations.NonNull
-import io.reactivex.disposables.Disposable
-import io.reactivex.internal.schedulers.ExecutorScheduler
-import io.reactivex.plugins.RxJavaPlugins
-import org.junit.Before
-import org.junit.Test
-import java.util.concurrent.Executor
-import java.util.concurrent.TimeUnit
+import org.jetbrains.spek.api.dsl.given
+import org.jetbrains.spek.api.dsl.it
+import org.jetbrains.spek.api.dsl.on
+import org.jetbrains.spek.subject.SubjectSpek
 
-class RestaurantsPresenterTest {
 
-    private lateinit var getLocationTopRestaurantsUseCase: GetLocationTopRestaurantsUseCase
-    private lateinit var getRestaurantsFromDatabaseUseCase: GetRestaurantsFromDatabaseUseCase
-    private lateinit var updateRestaurantsInDatabaseUseCase: UpdateRestaurantsInDatabaseUseCase
-    private lateinit var display: RestaurantsPresenter.Display
-    private lateinit var presenter: RestaurantsPresenter
+class RestaurantsPresenterTest : SubjectSpek<RestaurantsPresenter>({
 
-    @Before
-    fun setup() {
-        val immediate = object : Scheduler() {
-            override fun scheduleDirect(@NonNull run: Runnable, delay: Long, @NonNull unit: TimeUnit): Disposable {
-                // this prevents StackOverflowErrors when scheduling with a delay
-                return super.scheduleDirect(run, 0, unit)
-            }
+    lateinit var getLocationTopRestaurantsUseCase: GetLocationTopRestaurantsUseCase
+    lateinit var getRestaurantsFromDatabaseUseCase: GetRestaurantsFromDatabaseUseCase
+    lateinit var updateRestaurantsInDatabaseUseCase: UpdateRestaurantsInDatabaseUseCase
+    lateinit var display: RestaurantsPresenter.Display
+    lateinit var presenter: RestaurantsPresenter
 
-            override fun createWorker(): Worker {
-                return ExecutorScheduler.ExecutorWorker(Executor { it.run() })
-            }
-        }
-
-        RxJavaPlugins.setInitIoSchedulerHandler { immediate }
-        RxJavaPlugins.setInitComputationSchedulerHandler { immediate }
-        RxJavaPlugins.setInitNewThreadSchedulerHandler { immediate }
-        RxJavaPlugins.setInitSingleSchedulerHandler { immediate }
-        RxAndroidPlugins.setInitMainThreadSchedulerHandler { immediate }
-
+    subject {
         getLocationTopRestaurantsUseCase = mock()
         getRestaurantsFromDatabaseUseCase = mock()
         updateRestaurantsInDatabaseUseCase = mock()
-        presenter = RestaurantsPresenter(getLocationTopRestaurantsUseCase, getRestaurantsFromDatabaseUseCase, updateRestaurantsInDatabaseUseCase)
         display = mock()
-        presenter.inject(display)
-    }
 
-    @Test
-    fun getRestaurantsSuccess() {
         whenever(getLocationTopRestaurantsUseCase.getLocationTopRestaurants("98284", "subzone")).thenReturn(Single.just(listOf()))
 
-        presenter.onResume()
+        presenter = RestaurantsPresenter(getLocationTopRestaurantsUseCase, getRestaurantsFromDatabaseUseCase, updateRestaurantsInDatabaseUseCase)
 
-        verify(getLocationTopRestaurantsUseCase).getLocationTopRestaurants("98284", "subzone")
+        presenter.inject(display)
 
-        verify(display).displayRestaurants(any())
-        verify(updateRestaurantsInDatabaseUseCase).updateRestaurantsInDatabase(listOf())
+        presenter
     }
 
-    @Test
-    fun getRestaurantsFailureThenGetFromDBSuccess() {
-        whenever(getLocationTopRestaurantsUseCase.getLocationTopRestaurants("98284", "subzone"))
-                .thenReturn(Single.error(java.lang.IllegalArgumentException()))
+    given("I opened the restaurants view") {
+        on("successfully loading the restaurants list") {
+            it("displays the the restaurants list") {
+                subject.onResume()
 
-        whenever(getRestaurantsFromDatabaseUseCase.geRestaurantsFromDatabase())
-                .thenReturn(Single.just(listOf()))
+                verify(getLocationTopRestaurantsUseCase).getLocationTopRestaurants("98284", "subzone")
 
-        presenter.onResume()
-
-        verify(display).displayRestaurants(any())
+                verify(display).displayRestaurants(any())
+            }
+        }
     }
-
-    @Test
-    fun getRestaurantsFailureThenGetFromDBFailure() {
-        whenever(getLocationTopRestaurantsUseCase.getLocationTopRestaurants("98284", "subzone"))
-                .thenReturn(Single.error(java.lang.IllegalArgumentException()))
-
-        whenever(getRestaurantsFromDatabaseUseCase.geRestaurantsFromDatabase())
-                .thenReturn(Single.error(java.lang.IllegalArgumentException()))
-
-        presenter.onResume()
-
-        verify(display).displayError()
-    }
-}
+})

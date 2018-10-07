@@ -29,28 +29,26 @@ open class RestaurantsPresenter @Inject constructor(private val getLocationTopRe
 
     fun onResume() {
         apiSubscription = getLocationTopRestaurantsUseCase.getLocationTopRestaurants(LOCATION_ID, LOCATION_TYPE)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         { restaurants ->
                             display.displayRestaurants(restaurants)
 
-                            databaseSubscription = Completable.fromAction { updateRestaurantsInDatabaseUseCase.updateRestaurantsInDatabase(restaurants) }
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe {
-                                        // No message output for the user at this stage
-                                    }
+//                            databaseSubscription = Completable.fromAction { updateRestaurantsInDatabaseUseCase.updateRestaurantsInDatabase(restaurants) }
+//                                    .subscribeOn(Schedulers.io())
+//                                    .observeOn(AndroidSchedulers.mainThread())
+//                                    .subscribe {
+//                                        // No message output for the user at this stage
+//                                    }
                         },
                         { _ ->
-                            databaseSubscription = getRestaurantsFromDatabaseUseCase.geRestaurantsFromDatabase()
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe({
-                                        display.displayRestaurants(it)
-                                    }, {
-                                        display.displayError()
-                                    })
+//                            databaseSubscription = getRestaurantsFromDatabaseUseCase.geRestaurantsFromDatabase()
+//                                    .subscribeOn(Schedulers.io())
+//                                    .observeOn(AndroidSchedulers.mainThread())
+//                                    .subscribe({
+//                                        display.displayRestaurants(it)
+//                                    }, {
+//                                        display.displayError()
+//                                    })
                         })
     }
 
